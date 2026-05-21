@@ -1,0 +1,14 @@
+{
+  "name": "watson-protocol",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "express-graphql": "^0.12.0",
+    "graphql": "^15.8.0",
+    "lodash": "4.17.21"
+  }
+}

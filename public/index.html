@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WATSON_TERMINAL_V2</title>
+    <style>
+        :root {
+            --terminal-green: #00ff41;
+            --terminal-bg: #0a0a0a;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--terminal-bg);
+            color: var(--terminal-green);
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            padding: 15px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* CRT/Scanline Effect */
+        body::before {
+            content: " ";
+            display: block;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 100;
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        @keyframes flicker {
+            0% { opacity: 1.0; }
+            5% { opacity: 0.98; }
+            10% { opacity: 0.95; }
+            15% { opacity: 0.98; }
+            20% { opacity: 1.0; }
+            100% { opacity: 1.0; }
+        }
+
+        .terminal-container {
+            border: 1px solid var(--terminal-green);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            animation: flicker 0.1s infinite;
+            background: rgba(0, 5, 0, 0.5);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .log-container {
+            flex-grow: 1;
+            overflow-y: scroll;
+            margin-bottom: 20px;
+            padding-right: 10px;
+        }
+
+        /* Custom Themed Scrollbar */
+        .log-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        .log-container::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.3);
+            border-left: 1px solid rgba(0, 255, 65, 0.1);
+        }
+        .log-container::-webkit-scrollbar-thumb {
+            background: var(--terminal-green);
+            box-shadow: 0 0 5px var(--terminal-green);
+        }
+
+        .log-entry {
+            margin: 5px 0;
+            opacity: 0.8;
+            word-wrap: break-word;
+        }
+
+        .log-entry.header {
+            color: #fff;
+            font-weight: bold;
+            border-bottom: 1px solid var(--terminal-green);
+            margin-bottom: 10px;
+        }
+
+        .input-area {
+            display: flex;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .button {
+            background: transparent;
+            color: var(--terminal-green);
+            border: 1px solid var(--terminal-green);
+            padding: 5px 15px;
+            cursor: pointer;
+            text-transform: uppercase;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+
+        .button:hover {
+            background: var(--terminal-green);
+            color: var(--terminal-bg);
+        }
+
+        #result {
+            margin-top: 10px;
+            padding: 10px;
+            border-top: 1px dashed var(--terminal-green);
+            flex-shrink: 0;
+            min-height: 40px;
+        }
+
+        /* Styled scrollbar enabled above */
+
+    </style>
+</head>
+<body>
+    <div class="terminal-container">
+        <div class="log-entry header">WATSON CORE OS - v2.0.4 - ENCRYPTED SESSION</div>
+        <div class="log-container" id="log">
+            <div class="log-entry">[OK] Memory parity check complete.</div>
+            <div class="log-entry">[OK] Kernel subsystems initialized.</div>
+            <div class="log-entry">[WARN] Experimental feature ClientSideHydration detected in registry.</div>
+            <div class="log-entry">[INFO] Internal Query engine path updated to obscure location.</div>
+            <div class="log-entry">[CRITICAL] UNAUTHORIZED ACCESS DETECTED AT OMEGA SECTOR.</div>
+        </div>
+        <div class="input-area">
+            <button class="button" onclick="openVault()">ACCESS VAULT</button>
+            <button class="button" onclick="clearLogs()">CLEAR LOGS</button>
+        </div>
+        <div id="result">STATUS: WAITING FOR OPERATOR...</div>
+    </div>
+
+    <script>
+        const logContainer = document.getElementById('log');
+
+        function addLog(msg, type = 'INFO') {
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.innerText = `[${new Date().toLocaleTimeString()}] [${type}] ${msg}`;
+            logContainer.appendChild(entry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        async function openVault() {
+            addLog("Attempting omega-key handshake...", "SYSTEM");
+            try {
+                const res = await fetch('/api/v1/vault/open');
+                const data = await res.json();
+                if (data.status === "success") {
+                    addLog("VAULT_SECTOR_7 OPENED.", "SUCCESS");
+                    document.getElementById('result').innerHTML = `<span style="color: #fff; background: var(--terminal-green); padding: 5px;">${data.flag}</span>`;
+                } else {
+                    addLog(`ACCESS DENIED: ${data.message}`, "SEC_ERROR");
+                    document.getElementById('result').innerText = `STATUS: ${data.message}`;
+                }
+            } catch (err) {
+                addLog("CONNECTION INTERRUPTED.", "KERNEL_PANIC");
+            }
+        }
+
+        function clearLogs() {
+            logContainer.innerHTML = '<div class="log-entry header">SESSION LOGS CLEARED</div>';
+        }
+
+        // Simulate real-time monitoring
+        setInterval(() => {
+            const monitors = ["Pinging relay nodes...", "Syncing prototype state...", "Watching for intruders...", "Maintenance query executed."];
+            addLog(monitors[Math.floor(Math.random() * monitors.length)]);
+        }, 8000);
+
+        // Auto-hydration removed as requested. User must manually send POST to /api/v1/hydrate.
+        addLog("Manual hydration required for prototype synchronization.", "BOOT");
+    </script>
+</body>
+</html>
