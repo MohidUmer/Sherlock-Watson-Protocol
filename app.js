@@ -2,10 +2,16 @@ const express = require('express');
 const { graphqlHTTP } = require('express-graphql');
 const { buildSchema } = require('graphql');
 const _ = require('lodash');
+const path = require('path');
 const { getFlag, clearanceLevel } = require('./flag');
 
 const app = express();
-app.use(express.static('public'));
+const PUBLIC_DIR = path.join(__dirname, 'public');
+app.use(express.static(PUBLIC_DIR));
+
+app.get('/', (req, res) => {
+  res.sendFile(path.join(PUBLIC_DIR, 'index.html'));
+});
 
 // SYSREG: V3_ENDPOINT_MAP
 const QUERY_PATH = '/v3/internal/api/query';
@@ -181,14 +187,18 @@ app.get(VAULT_PATH, (req, res) => {
 });
 
 const PORT = 5000;
-app.listen(PORT, () => {
-  console.log(`[SYSTEM] The Watson Protocol online on port ${PORT}`);
-  console.log(`[SYSTEM] Internal Query: ${QUERY_PATH}`);
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`[SYSTEM] The Watson Protocol online on port ${PORT}`);
+    console.log(`[SYSTEM] Internal Query: ${QUERY_PATH}`);
+  });
+}
 
-if (process.env.NODE_ENV === 'production') {
+if (process.env.NODE_ENV === 'production' && !process.env.VERCEL) {
   setInterval(() => {
     console.log('[SYSTEM] Production cleanup triggered; exiting for clean restart.');
     process.exit(0);
   }, 300000);
 }
+
+module.exports = app;

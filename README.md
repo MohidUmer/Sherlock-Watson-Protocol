@@ -1,68 +1,209 @@
-# Watson Protocol Challenge
+# Sherlock: The Watson Protocol
 
-This repository contains the `Watson Protocol` Node.js CTF challenge.
-It is designed to run locally via Docker Compose and on a public host such as Render.
+> "When you have eliminated the impossible, whatever remains, however improbable, must be the truth."
+>
+> - Sherlock Holmes
 
-## Repository structure
+## Project Name
 
-- `Dockerfile` - builds the Node.js app on `node:20-alpine`
-- `docker-entrypoint.sh` - launches the Node.js challenge service
-- `docker-compose.yml` - local development service definition mapping port `5000`
-- `app.js` - Express challenge server with prototype pollution exploit logic
-- `flag.js` - central flag module that contains the challenge flag
-- `README.md` - usage and deployment notes
+**Sherlock: The Web of Vulnerabilities**
 
-## Local development
+## Concept
 
-Use Docker Compose for local testing:
+Learn web security by solving Sherlock Holmes-inspired cybercrime cases. Each case turns a real web/API vulnerability into an interactive investigation with clues, endpoints, story beats, and hands-on exploitation.
+
+This repository contains **The Watson Protocol**, a medium-level case focused on GraphQL discovery, weak sanitization, and prototype pollution.
+
+## Overview
+
+**Sherlock: The Watson Protocol** is a narrative-driven web security lab where players investigate a locked OMEGA-7 vault. The player must follow internal clues, query hidden APIs, decode a signal, exploit a vulnerable hydration endpoint, and retrieve the final flag from the vault.
+
+The flag is centralized in `flag.js`. No frontend file or route should hardcode the flag directly.
+
+## Challenge
+
+### Case: The Watson Protocol
+
+Exploit a vulnerable API flow to open the vault.
+
+Learn:
+
+- GraphQL endpoint discovery
+- Hidden route enumeration
+- Encoding and decoding investigation clues
+- Prototype pollution through unsafe object merging
+- Why partial sanitization fails
+- Why sensitive values should be centralized
+
+## Features
+
+- Story-driven Sherlock Holmes investigation
+- Victorian-inspired interactive UI
+- In-browser training terminal
+- Real Express API endpoints
+- Intentional prototype pollution vulnerability
+- Centralized flag module through `flag.js`
+- Vercel-ready serverless deployment
+- Docker support for local/container deployment
+
+## Tech Stack
+
+### Frontend
+
+- HTML
+- CSS animations
+- Vanilla JavaScript
+- Express static hosting
+
+### Backend
+
+- Node.js
+- Express.js
+- GraphQL
+- Lodash
+
+### Deployment
+
+- Vercel serverless functions
+- Docker
+- Docker Compose
+
+## Current Project Structure
+
+```text
+Watson-Protocol/
+|
+├── api/
+│   └── index.js                 # Vercel serverless entrypoint
+|
+├── public/
+│   └── index.html               # Story UI and interactive terminal
+|
+├── app.js                       # Express app and vulnerable API routes
+├── flag.js                      # Central challenge flag source
+├── vercel.json                  # Vercel routing/serverless config
+├── Dockerfile                   # Docker deployment
+├── docker-compose.yml           # Local Docker Compose setup
+├── docker-entrypoint.sh         # Container startup script
+├── package.json
+└── README.md
+```
+
+## Getting Started
+
+### 1. Install dependencies
+
+```bash
+npm install
+```
+
+### 2. Run locally
+
+```bash
+npm start
+```
+
+Open:
+
+```text
+http://localhost:5000
+```
+
+### 3. Run with Docker
 
 ```bash
 docker compose up --build
 ```
 
-Then open:
-
-```bash
-http://localhost:5000
-```
-
-If you need to stop the service:
+Stop the service:
 
 ```bash
 docker compose down
 ```
 
-### Direct Docker build
+## Deploying to Vercel
+
+This project includes Vercel deployment support:
+
+- `api/index.js` exports the Express app as a serverless function.
+- `vercel.json` rewrites all routes to the Express handler.
+- `app.js` explicitly serves `public/index.html` at `/`.
+- `app.js` only calls `listen()` during local execution, not when imported by Vercel.
+
+Deploy steps:
 
 ```bash
-docker build -t watson-protocol .
-docker run --rm -p 5000:5000 -e NODE_ENV=development watson-protocol
+npm install
+vercel
 ```
 
-## Environment variables
+For production:
 
-- `NODE_ENV` - `production` enables periodic process restart every 5 minutes
+```bash
+vercel --prod
+```
 
-## Deploying on Render
+If Vercel previously showed `Cannot GET /`, redeploy after these files are included:
 
-Render can host this service in free-tier mode with the following goals:
+```text
+api/index.js
+vercel.json
+public/index.html
+app.js
+```
 
-- Use `node:20-alpine` for a smaller build footprint
-- Keep the flag value centralized in `flag.js`
-- Periodically restart the instance in `production` mode to clear runtime contamination
+## Important Routes
 
-Recommended Render service settings:
+```text
+GET  /
+GET  /v3/internal/notes.txt
+GET  /v3/internal/archive/
+GET  /v3/internal/archive/naming_convention.json
+POST /v3/internal/api/query
+POST /api/v1/hydrate
+GET  /api/v1/vault/open
+```
 
-- Environment: `Docker`
-- Port: `5000`
-- Start command: none (entrypoint handles startup)
-- Set `NODE_ENV=production`
+## Flag Handling
 
-## Notes
+The flag lives in:
 
-- The challenge logic reads the flag through `flag.js`; no route or frontend file should read or embed it directly.
-- `app.js` uses `setInterval` in production to trigger a graceful restart every 5 minutes, which helps keep Render instances clean.
+```text
+flag.js
+```
 
-## Git ignore
+Runtime code must call:
 
-This repository includes a `.gitignore` to exclude runtime artifacts such as `node_modules/` and local `.env` files.
+```js
+const { getFlag } = require('./flag');
+```
+
+Do not hardcode the flag in `app.js`, `public/index.html`, route handlers, or documentation examples.
+
+## Learning Outcomes
+
+By completing this case, users will understand:
+
+- How hidden API routes can expose an attack path
+- How GraphQL can leak useful structure and clues
+- How unsafe object merging can create prototype pollution
+- Why denylist-based sanitization is fragile
+- How small backend design decisions can unlock serious vulnerabilities
+
+## Disclaimer
+
+This project is for educational purposes only. All vulnerabilities are intentionally created in a controlled lab environment. Do not test these techniques on systems you do not own or have explicit permission to assess.
+
+## Inspiration
+
+Inspired by:
+
+- Sherlock Holmes stories by Sir Arthur Conan Doyle
+- Real-world web security training labs
+- OWASP API Security concepts
+
+## Author
+
+**Mohid Umer**
+
+Cybersecurity Enthusiast | Developer
